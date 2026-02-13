@@ -1,175 +1,260 @@
+
 <!DOCTYPE html>
-<html lang="pl">
+<html>
 <head>
-    <meta charset="UTF-8" />
-    <title>Regulamin SNEZZE RP</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <style>
-        body {
-            margin: 0;
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #ff4c4c, #8b0000); /* ognisty gradient czerwieni */
-            color: #ffeaea; /* jasny tekst dla kontrastu */
-        }
-        header {
-            text-align: center;
-            padding: 40px 20px;
-            background: linear-gradient(90deg, #ff1a1a, #8b0000); /* dynamiczny czerwony nagłówek */
-            border-bottom: 2px solid #ff7f7f;
-        }
-        header img {
-            max-width: 400px;
-            width: 90%;
-            margin-bottom: 20px;
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        header h1 {
-            margin: 0 0 10px 0;
-            font-size: 34px;
-            color: #ffd6d6; /* jasny czerwony */
-        }
-        header p {
-            margin: 0 0 20px 0;
-            color: #ffbfbf;
-            font-size: 18px;
-        }
-        .container {
-            max-width: 1000px;
-            margin: auto;
-            padding: 40px 20px;
-        }
-        section {
-            margin-bottom: 35px;
-            background: linear-gradient(135deg, #b30000, #660000); /* ciemny czerwony gradient dla sekcji */
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.5);
-        }
-        h2 {
-            margin-top: 0;
-            color: #ff8080; /* jasny, ognisty nagłówek sekcji */
-        }
-        ul {
-            padding-left: 20px;
-        }
-        li {
-            margin-bottom: 8px;
-            line-height: 1.6;
-        }
-        footer {
-            text-align: center;
-            padding: 25px;
-            background: linear-gradient(90deg, #ff1a1a, #660000); /* ognista stopka */
-            color: #ffcccc;
-            font-size: 14px;
-        }
-    </style>
+<meta charset="UTF-8">
+<title>CASH Casino V24 ULTRA</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+body{margin:0;background:#0b1220;color:#fff;font-family:Arial;display:flex;justify-content:center}
+.container{width:460px;margin-top:30px}
+.card{background:#0f172a;padding:20px;border-radius:20px;margin-bottom:20px}
+button{padding:8px 12px;border:none;border-radius:10px;font-weight:bold;cursor:pointer}
+.green{background:#22c55e}.blue{background:#3b82f6}.red{background:#ef4444}
+.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:15px}
+.tile{aspect-ratio:1;background:#1e293b;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer}
+canvas{background:#0f172a;border-radius:20px;margin-top:10px}
+.slots{display:flex;margin-top:10px}
+.slot{flex:1;margin:2px;padding:6px 0;text-align:center;border-radius:6px;font-size:11px;font-weight:bold;transition:.3s}
+.slot.active{box-shadow:0 0 12px #fff;transform:scale(1.1)}
+.redSlot{background:#dc2626}
+.orangeSlot{background:#f97316}
+.yellowSlot{background:#eab308}
+.greenSlot{background:#22c55e}
+.graySlot{background:#374151}
+</style>
 </head>
 <body>
 
-<header>
-    <h1>REGULAMIN SERWERA SNEZZE RP</h1>
-    <p>FiveM RolePlay</p>
-    <img src="logo.png" alt="SNEZZE RP Logo" />
-</header>
-
 <div class="container">
 
-    <section>
-        <h2>§1 Postanowienia ogólne</h2>
-        <ul>
-            <li>Logując się na serwer <strong>SNEZZE RP</strong>, gracz akceptuje niniejszy regulamin.</li>
-            <li>Nieznajomość regulaminu nie zwalnia z obowiązku jego przestrzegania.</li>
-            <li>Administracja ma prawo do interpretacji regulaminu i podejmowania ostatecznych decyzji.</li>
-            <li>Zabrania się wykorzystywania bugów, cheatów oraz programów dających przewagę.</li>
-        </ul>
-    </section>
+<div class="card" id="authBox">
+<h2>CASH Casino</h2>
+<input id="u" placeholder="Login"><br><br>
+<input id="p" type="password" placeholder="Hasło"><br><br>
+<button class="green" onclick="register()">Register</button>
+<button class="blue" onclick="login()">Login</button>
+<div id="authError" style="color:red;margin-top:10px"></div>
+</div>
 
-    <section>
-        <h2>§2 Zasady RolePlay</h2>
-        <ul>
-            <li>Każdy gracz ma obowiązek realistycznego odgrywania swojej postaci.</li>
-            <li><strong>FailRP</strong> – nierealistyczne zachowania lub brak strachu o życie – są zabronione.</li>
-            <li><strong>PowerGaming (PG)</strong> – czynności niemożliwe w realnym życiu – są zabronione.</li>
-            <li><strong>Metagaming (MG)</strong> – wykorzystywanie informacji spoza gry – jest zabronione.</li>
-            <li><strong>FearRP</strong> – brak strachu o życie w sytuacjach zagrożenia – jest zabronione.</li>
-        </ul>
-    </section>
+<div class="card" id="menu" style="display:none">
+<h3>Saldo: $<span id="balance">0</span></h3>
+<button class="green" onclick="showMines()">Mines</button>
+<button class="blue" onclick="showPlinko()">Plinko</button>
+<button class="red" onclick="logout()">Logout</button>
+</div>
 
-    <section>
-        <h2>§3 Zakazy bojowe</h2>
-        <ul>
-            <li><strong>RDM</strong> – zabijanie bez powodu fabularnego – jest surowo zabronione.</li>
-            <li><strong>VDM</strong> – zabijanie przy użyciu pojazdu bez powodu RP – jest zabronione.</li>
-            <li><strong>Drive-By</strong> bez odpowiedniej akcji RP – jest zabronione.</li>
-            <li><strong>Revenge Kill (RK)</strong> – zemsta po śmierci postaci – jest zabroniona.</li>
-            <li><strong>Combat Logging (CL)</strong> – wylogowanie się podczas akcji RP – jest zabronione.</li>
-        </ul>
-    </section>
+<div class="card" id="minesBox" style="display:none">
+<button class="red" onclick="back()">Back</button>
+<h3>Mines 💣</h3>
+Bet: <input id="betM" type="number" value="100"><br><br>
+Mines: <input type="range" min="1" max="10" value="5" id="mineSlider"
+oninput="mineCount=this.value;mineValue.innerText=this.value">
+<span id="mineValue">5</span><br><br>
+<button class="green" onclick="startM()">Start</button>
+<div>Multiplier: x<span id="mult">1.00</span></div>
+<div class="grid" id="grid"></div>
+<button class="blue" onclick="cashout()">Cashout</button>
+</div>
 
-    <section>
-        <h2>§4 Zasady komunikacji</h2>
-        <ul>
-            <li>Zakaz obrażania, prowokowania i toksycznego zachowania.</li>
-            <li>Zakaz mowy nienawiści, rasizmu oraz treści 18+.</li>
-            <li>Czat OOC służy wyłącznie do spraw technicznych.</li>
-            <li>Zakaz reklamowania innych serwerów bez zgody administracji.</li>
-        </ul>
-    </section>
-
-    <section>
-        <h2>§5 Postacie i rozgrywka</h2>
-        <ul>
-            <li>Każdy gracz odpowiada za swoje postacie.</li>
-            <li>Zakaz multikont bez zgody administracji.</li>
-            <li>Postać musi posiadać realistyczne imię i nazwisko.</li>
-            <li>Zakaz wykorzystywania mechanik gry niezgodnie z RP.</li>
-        </ul>
-    </section>
-
-    <section>
-        <h2>§6 Streamowanie i nagrywanie</h2>
-        <ul>
-            <li>Streamowanie dozwolone bez ujawniania informacji OOC.</li>
-            <li>Zakaz stream snipingu.</li>
-            <li>Administracja może poprosić o nagranie z akcji RP.</li>
-        </ul>
-    </section>
-
-    <section>
-        <h2>§7 Administracja</h2>
-        <ul>
-            <li>Decyzje administracji są ostateczne.</li>
-            <li>Administrację należy szanować.</li>
-            <li>Skargi składamy wyłącznie na Discordzie serwera.</li>
-            <li>Nadużywanie reportów jest karane.</li>
-        </ul>
-    </section>
-
-    <section>
-        <h2>§8 Kary</h2>
-        <ul>
-            <li>Możliwe kary: ostrzeżenia, kicki, bany czasowe i permanentne.</li>
-            <li>Wysokość kary zależy od przewinienia i historii gracza.</li>
-            <li>W poważnych przypadkach możliwy jest permanentny ban.</li>
-        </ul>
-    </section>
-
-    <section>
-        <h2>§9 Postanowienia końcowe</h2>
-        <ul>
-            <li>Regulamin może być zmieniany w dowolnym momencie.</li>
-            <li>Gracz ma obowiązek śledzić aktualizacje regulaminu.</li>
-        </ul>
-    </section>
+<div class="card" id="plinkoBox" style="display:none">
+<button class="red" onclick="back()">Back</button>
+<h3>Plinko 🎲</h3>
+Bet: <input id="betP" type="number" value="100">
+<button class="green" onclick="dropBall()">Drop</button>
+<canvas id="plinkoCanvas" width="420" height="400"></canvas>
+<div class="slots" id="slots"></div>
+</div>
 
 </div>
 
-<footer>
-    Życzymy miłej i klimatycznej gry na <strong>SNEZZE RP</strong> 🌌
-</footer>
+<script>
+let currentUser=null;
+let minePositions=[],gameActive=false,bet=0,revealed=0,mineCount=5;
+
+function saveUsers(users){localStorage.setItem("users",JSON.stringify(users))}
+function getUsers(){return JSON.parse(localStorage.getItem("users")||"{}")}
+
+function register(){
+ let users=getUsers();
+ if(users[u.value]){authError.innerText="User exists";return}
+ users[u.value]={password:p.value,balance:1000}
+ saveUsers(users)
+ authError.innerText="Registered!"
+}
+
+function login(){
+ let users=getUsers();
+ if(!users[u.value]||users[u.value].password!==p.value){
+  authError.innerText="Wrong login";return}
+ currentUser=u.value;
+ authBox.style.display="none";
+ menu.style.display="block";
+ loadBalance();
+}
+
+function logout(){location.reload()}
+
+function loadBalance(){
+ let users=getUsers();
+ balance.innerText=users[currentUser].balance
+}
+
+function updateBalance(amount){
+ let users=getUsers();
+ users[currentUser].balance+=amount;
+ saveUsers(users);
+ loadBalance();
+}
+
+function back(){
+ minesBox.style.display="none";
+ plinkoBox.style.display="none";
+ menu.style.display="block";
+}
+
+// MINES
+function showMines(){menu.style.display="none";minesBox.style.display="block";createGrid()}
+
+function createGrid(){
+ grid.innerHTML="";
+ for(let i=0;i<25;i++){
+  let t=document.createElement("div");
+  t.className="tile";
+  t.onclick=()=>clickTile(t,i);
+  grid.appendChild(t);
+ }
+}
+
+function startM(){
+ bet=+betM.value;
+ if(!bet||bet<=0)return;
+ updateBalance(-bet);
+ minePositions=[];
+ revealed=0;
+ gameActive=true;
+ mult.innerText="1.00";
+ createGrid();
+ while(minePositions.length<mineCount){
+  let r=Math.floor(Math.random()*25);
+  if(!minePositions.includes(r))minePositions.push(r);
+ }
+}
+
+function calculateMult(){
+ const total=25;
+ const safe=total-mineCount;
+ if(revealed===0)return 1;
+ return (total/(safe-revealed+1)).toFixed(2);
+}
+
+function clickTile(tile,i){
+ if(!gameActive)return;
+ if(minePositions.includes(i)){
+  tile.innerText="💣";
+  tile.style.background="#dc2626";
+  gameActive=false;
+ }else{
+  tile.innerText="💎";
+  tile.style.background="#16a34a";
+  revealed++;
+  mult.innerText=calculateMult();
+ }
+}
+
+function cashout(){
+ if(!gameActive)return;
+ let win=Math.floor(bet*parseFloat(mult.innerText));
+ updateBalance(win);
+ gameActive=false;
+ createGrid();
+ mult.innerText="1.00";
+}
+
+// PLINKO
+const multipliers=[0.5,1,1.5,2,3,5,3,2,1.5,1,0.5];
+
+function renderSlots(){
+ slots.innerHTML="";
+ multipliers.forEach((v,i)=>{
+   let div=document.createElement("div");
+   div.className="slot "+(v>=5?"redSlot":v>=3?"orangeSlot":v>=2?"yellowSlot":v>=1?"greenSlot":"graySlot");
+   div.innerText="x"+v;
+   div.id="slot-"+i;
+   slots.appendChild(div);
+ })
+}
+renderSlots();
+
+function dropBall(){
+ let bet2=+betP.value;
+ if(!bet2||bet2<=0)return;
+ updateBalance(-bet2);
+
+ const canvas=document.getElementById("plinkoCanvas");
+ const ctx=canvas.getContext("2d");
+
+ let pins=[];
+ for(let row=0;row<9;row++){
+   for(let col=0;col<=row;col++){
+     pins.push({
+       x:210-row*20+col*40,
+       y:50+row*30
+     });
+   }
+ }
+
+ let slotIndex=Math.floor(Math.random()*multipliers.length);
+ let targetX=(420/multipliers.length)*slotIndex + (420/multipliers.length)/2;
+
+ let ball={x:210,y:0,vx:0,vy:0};
+
+ function drawPins(){
+   ctx.fillStyle="#ffffff";
+   pins.forEach(p=>{
+     ctx.beginPath();
+     ctx.arc(p.x,p.y,3,0,Math.PI*2);
+     ctx.fill();
+   });
+ }
+
+ function animate(){
+   ctx.clearRect(0,0,420,400);
+   drawPins();
+
+   ball.vy+=0.15;
+   ball.y+=ball.vy;
+   ball.vx+=(targetX-ball.x)*0.0008;
+   ball.x+=ball.vx;
+
+   pins.forEach(p=>{
+     let dx=ball.x-p.x;
+     let dy=ball.y-p.y;
+     let dist=Math.sqrt(dx*dx+dy*dy);
+     if(dist<8){
+       ball.vx+=(Math.random()*2-1)*1.2;
+       ball.vy*=-0.2;
+     }
+   });
+
+   ctx.beginPath();
+   ctx.arc(ball.x,ball.y,8,0,Math.PI*2);
+   ctx.fillStyle="#22c55e";
+   ctx.fill();
+
+   if(ball.y<360){
+     requestAnimationFrame(animate);
+   }else{
+     document.querySelectorAll(".slot").forEach(s=>s.classList.remove("active"));
+     document.getElementById("slot-"+slotIndex).classList.add("active");
+     let win=Math.floor(bet2*multipliers[slotIndex]);
+     updateBalance(win);
+   }
+ }
+
+ animate();
+}
+</script>
 
 </body>
 </html>
