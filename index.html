@@ -3,20 +3,22 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>CASH Casino V24 ULTRA</title>
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CASH Casino V26 PRO MAX</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
 body{margin:0;background:#0b1220;color:#fff;font-family:Arial;display:flex;justify-content:center}
-.container{width:460px;margin-top:30px}
-.card{background:#0f172a;padding:20px;border-radius:20px;margin-bottom:20px}
-button{padding:8px 12px;border:none;border-radius:10px;font-weight:bold;cursor:pointer}
+.container{width:500px;margin-top:30px}
+.card{background:#111827;padding:20px;border-radius:18px;margin-bottom:20px;box-shadow:0 0 20px rgba(0,0,0,.5)}
+button{padding:8px 12px;border:none;border-radius:8px;font-weight:bold;cursor:pointer}
 .green{background:#22c55e}.blue{background:#3b82f6}.red{background:#ef4444}
 .grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:15px}
-.tile{aspect-ratio:1;background:#1e293b;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer}
-canvas{background:#0f172a;border-radius:20px;margin-top:10px}
+.tile{aspect-ratio:1;background:#1f2937;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer}
+canvas{background:#0f172a;border-radius:18px;margin-top:10px}
 .slots{display:flex;margin-top:10px}
 .slot{flex:1;margin:2px;padding:6px 0;text-align:center;border-radius:6px;font-size:11px;font-weight:bold;transition:.3s}
-.slot.active{box-shadow:0 0 12px #fff;transform:scale(1.1)}
+.slot.active{box-shadow:0 0 15px #fff;transform:scale(1.1)}
+.bigwin{animation:flash 0.3s alternate infinite}
+@keyframes flash{from{box-shadow:0 0 5px gold}to{box-shadow:0 0 25px gold}}
 .redSlot{background:#dc2626}
 .orangeSlot{background:#f97316}
 .yellowSlot{background:#eab308}
@@ -39,6 +41,7 @@ canvas{background:#0f172a;border-radius:20px;margin-top:10px}
 
 <div class="card" id="menu" style="display:none">
 <h3>Saldo: $<span id="balance">0</span></h3>
+<h4>Największa wygrana: $<span id="maxWin">0</span></h4>
 <button class="green" onclick="showMines()">Mines</button>
 <button class="blue" onclick="showPlinko()">Plinko</button>
 <button class="red" onclick="logout()">Logout</button>
@@ -48,7 +51,7 @@ canvas{background:#0f172a;border-radius:20px;margin-top:10px}
 <button class="red" onclick="back()">Back</button>
 <h3>Mines 💣</h3>
 Bet: <input id="betM" type="number" value="100"><br><br>
-Mines: <input type="range" min="1" max="10" value="5" id="mineSlider"
+Mines: <input type="range" min="1" max="10" value="5"
 oninput="mineCount=this.value;mineValue.innerText=this.value">
 <span id="mineValue">5</span><br><br>
 <button class="green" onclick="startM()">Start</button>
@@ -68,18 +71,23 @@ Bet: <input id="betP" type="number" value="100">
 
 </div>
 
+<audio id="clickSound" src="https://assets.mixkit.co/sfx/preview/mixkit-select-click-1109.mp3"></audio>
+<audio id="winSound" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3"></audio>
+<audio id="bigWinSound" src="https://assets.mixkit.co/sfx/preview/mixkit-arcade-bonus-alert-767.mp3"></audio>
+
 <script>
 let currentUser=null;
 let minePositions=[],gameActive=false,bet=0,revealed=0,mineCount=5;
+let maxWinValue=0;
 
-function saveUsers(users){localStorage.setItem("users",JSON.stringify(users))}
+function saveUsers(u){localStorage.setItem("users",JSON.stringify(u))}
 function getUsers(){return JSON.parse(localStorage.getItem("users")||"{}")}
 
 function register(){
  let users=getUsers();
  if(users[u.value]){authError.innerText="User exists";return}
- users[u.value]={password:p.value,balance:1000}
- saveUsers(users)
+ users[u.value]={password:p.value,balance:1000,maxWin:0}
+ saveUsers(users);
  authError.innerText="Registered!"
 }
 
@@ -97,12 +105,15 @@ function logout(){location.reload()}
 
 function loadBalance(){
  let users=getUsers();
- balance.innerText=users[currentUser].balance
+ balance.innerText=users[currentUser].balance;
+ maxWinValue=users[currentUser].maxWin||0;
+ maxWin.innerText=maxWinValue;
 }
 
-function updateBalance(amount){
+function updateBalance(a){
  let users=getUsers();
- users[currentUser].balance+=amount;
+ users[currentUser].balance+=a;
+ if(a>maxWinValue){maxWinValue=a;users[currentUser].maxWin=a;}
  saveUsers(users);
  loadBalance();
 }
@@ -113,63 +124,13 @@ function back(){
  menu.style.display="block";
 }
 
-// MINES
+// MINES (basic)
 function showMines(){menu.style.display="none";minesBox.style.display="block";createGrid()}
-
-function createGrid(){
- grid.innerHTML="";
- for(let i=0;i<25;i++){
-  let t=document.createElement("div");
-  t.className="tile";
-  t.onclick=()=>clickTile(t,i);
-  grid.appendChild(t);
- }
-}
-
-function startM(){
- bet=+betM.value;
- if(!bet||bet<=0)return;
- updateBalance(-bet);
- minePositions=[];
- revealed=0;
- gameActive=true;
- mult.innerText="1.00";
- createGrid();
- while(minePositions.length<mineCount){
-  let r=Math.floor(Math.random()*25);
-  if(!minePositions.includes(r))minePositions.push(r);
- }
-}
-
-function calculateMult(){
- const total=25;
- const safe=total-mineCount;
- if(revealed===0)return 1;
- return (total/(safe-revealed+1)).toFixed(2);
-}
-
-function clickTile(tile,i){
- if(!gameActive)return;
- if(minePositions.includes(i)){
-  tile.innerText="💣";
-  tile.style.background="#dc2626";
-  gameActive=false;
- }else{
-  tile.innerText="💎";
-  tile.style.background="#16a34a";
-  revealed++;
-  mult.innerText=calculateMult();
- }
-}
-
-function cashout(){
- if(!gameActive)return;
- let win=Math.floor(bet*parseFloat(mult.innerText));
- updateBalance(win);
- gameActive=false;
- createGrid();
- mult.innerText="1.00";
-}
+function createGrid(){grid.innerHTML="";for(let i=0;i<25;i++){let t=document.createElement("div");t.className="tile";t.onclick=()=>clickTile(t,i);grid.appendChild(t)}}
+function startM(){bet=+betM.value;if(!bet)return;updateBalance(-bet);minePositions=[];revealed=0;gameActive=true;mult.innerText="1.00";createGrid();while(minePositions.length<mineCount){let r=Math.floor(Math.random()*25);if(!minePositions.includes(r))minePositions.push(r)}}
+function calculateMult(){const total=25;const safe=total-mineCount;if(revealed===0)return 1;return (total/(safe-revealed+1)).toFixed(2)}
+function clickTile(t,i){if(!gameActive)return;clickSound.play();if(minePositions.includes(i)){t.innerText="💣";t.style.background="#dc2626";gameActive=false}else{t.innerText="💎";t.style.background="#16a34a";revealed++;mult.innerText=calculateMult()}}
+function cashout(){if(!gameActive)return;let win=Math.floor(bet*parseFloat(mult.innerText));animateWin(win);gameActive=false;createGrid();mult.innerText="1.00"}
 
 // PLINKO
 const multipliers=[0.5,1,1.5,2,3,5,3,2,1.5,1,0.5];
@@ -177,82 +138,46 @@ const multipliers=[0.5,1,1.5,2,3,5,3,2,1.5,1,0.5];
 function renderSlots(){
  slots.innerHTML="";
  multipliers.forEach((v,i)=>{
-   let div=document.createElement("div");
-   div.className="slot "+(v>=5?"redSlot":v>=3?"orangeSlot":v>=2?"yellowSlot":v>=1?"greenSlot":"graySlot");
-   div.innerText="x"+v;
-   div.id="slot-"+i;
-   slots.appendChild(div);
- })
+   let d=document.createElement("div");
+   d.className="slot "+(v>=5?"redSlot":v>=3?"orangeSlot":v>=2?"yellowSlot":v>=1?"greenSlot":"graySlot");
+   d.innerText="x"+v;
+   d.id="slot-"+i;
+   slots.appendChild(d);
+ });
 }
-renderSlots();
+
+function showPlinko(){
+ menu.style.display="none";
+ plinkoBox.style.display="block";
+ renderSlots();
+}
 
 function dropBall(){
- let bet2=+betP.value;
- if(!bet2||bet2<=0)return;
+ clickSound.play();
+ let bet2=+betP.value;if(!bet2)return;
  updateBalance(-bet2);
 
- const canvas=document.getElementById("plinkoCanvas");
- const ctx=canvas.getContext("2d");
+ let index=Math.floor(Math.random()*multipliers.length);
+ let win=Math.floor(bet2*multipliers[index]);
 
- let pins=[];
- for(let row=0;row<9;row++){
-   for(let col=0;col<=row;col++){
-     pins.push({
-       x:210-row*20+col*40,
-       y:50+row*30
-     });
-   }
- }
+ document.querySelectorAll(".slot").forEach(s=>s.classList.remove("active","bigwin"));
+ let slot=document.getElementById("slot-"+index);
+ slot.classList.add("active");
 
- let slotIndex=Math.floor(Math.random()*multipliers.length);
- let targetX=(420/multipliers.length)*slotIndex + (420/multipliers.length)/2;
+ if(win>=bet2*5){slot.classList.add("bigwin");bigWinSound.play();}
+ else{winSound.play();}
 
- let ball={x:210,y:0,vx:0,vy:0};
+ animateWin(win);
+}
 
- function drawPins(){
-   ctx.fillStyle="#ffffff";
-   pins.forEach(p=>{
-     ctx.beginPath();
-     ctx.arc(p.x,p.y,3,0,Math.PI*2);
-     ctx.fill();
-   });
- }
-
- function animate(){
-   ctx.clearRect(0,0,420,400);
-   drawPins();
-
-   ball.vy+=0.15;
-   ball.y+=ball.vy;
-   ball.vx+=(targetX-ball.x)*0.0008;
-   ball.x+=ball.vx;
-
-   pins.forEach(p=>{
-     let dx=ball.x-p.x;
-     let dy=ball.y-p.y;
-     let dist=Math.sqrt(dx*dx+dy*dy);
-     if(dist<8){
-       ball.vx+=(Math.random()*2-1)*1.2;
-       ball.vy*=-0.2;
-     }
-   });
-
-   ctx.beginPath();
-   ctx.arc(ball.x,ball.y,8,0,Math.PI*2);
-   ctx.fillStyle="#22c55e";
-   ctx.fill();
-
-   if(ball.y<360){
-     requestAnimationFrame(animate);
-   }else{
-     document.querySelectorAll(".slot").forEach(s=>s.classList.remove("active"));
-     document.getElementById("slot-"+slotIndex).classList.add("active");
-     let win=Math.floor(bet2*multipliers[slotIndex]);
-     updateBalance(win);
-   }
- }
-
- animate();
+function animateWin(amount){
+ let current=0;
+ let step=amount/30;
+ let interval=setInterval(()=>{
+   current+=step;
+   if(current>=amount){current=amount;clearInterval(interval);}
+   updateBalance(Math.floor(step));
+ },30);
 }
 </script>
 
